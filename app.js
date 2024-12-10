@@ -22,7 +22,7 @@ mongoose.connection.on('error', () => {
 mongoose.connect("mongodb://127.0.0.1:27017/tp_cpi");
 
 //todo creer le modele article 
-const Article = mongoose.model('Article', { id: Number, title: String, content: String, author: String }, 'articles');
+const Article = mongoose.model('Article', { title: String, content: String, author: String }, 'articles');
 
 // ================================================
 // Instancier un serveur et autoriser envokie json
@@ -51,14 +51,14 @@ app.get('/articles', async (request, response) => {
 app.get('/article/:id', async (request, response) => {
     const paramID = request.params.id;
 
-    const foundArticle = await Article.findOne({'id' : paramID});
+    const foundArticle = await Article.findOne({'_id' : paramID});
 
     if (!foundArticle){
         return response.json({ code : "705" });
     }
 
     return response.json(foundArticle);
-    
+
 });
 //route pour ajouter un article
 app.post('/add-article', async (request, response) =>{
@@ -74,15 +74,10 @@ app.delete('/delete-article/:id', async (request, response) => {
     const paramID = request.params.id;
 
     try {
-        const result = await Article.deleteOne({ id: paramID });
-
-        if (result.deletedCount === 0) {
-            return response.json({ code: "706", message: "Article non trouvé" });
-        }
-
+        const result = await Article.deleteOne({ _id: paramID });
         return response.json({ code: "200", message: "Article supprimé avec succès" });
     } catch (error) {
-        console.error("Erreur lors de la suppression de l'article :", error);
+        console.log("Erreur lors de la suppression de l'article");
         return response.status(500).json({ code: "500", message: "Erreur serveur" });
     }
 });

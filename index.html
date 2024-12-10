@@ -1,0 +1,109 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <header class="bg-black h-24 flex items-center">
+    <h1 class="text-white font-bold text-2xl ml-10">Gérer les données dans le serveur</h1>
+  </header>
+
+  <main class="p-10">
+    <section class="bg-white shadow-md rounded-md p-6 mb-10">
+      <h2 class="text-lg font-semibold mb-4">Ajouter un article</h2>
+      <form id="articleForm" class="space-y-4">
+        <div>
+          <label for="title" class="block text-sm font-medium text-gray-700">Titre</label>
+          <input id="title" name="title" type="text" required
+            class="w-full border border-gray-300 rounded-md p-2 mt-1">
+        </div>
+        <div>
+          <label for="content" class="block text-sm font-medium text-gray-700">Contenu</label>
+          <textarea id="content" name="content" rows="4" required
+            class="w-full border border-gray-300 rounded-md p-2 mt-1"></textarea>
+        </div>
+        <div>
+          <label for="author" class="block text-sm font-medium text-gray-700">Auteur</label>
+          <input id="author" name="author" type="text" required
+            class="w-full border border-gray-300 rounded-md p-2 mt-1">
+        </div>
+        <button type="submit"
+          class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-md">
+          Ajouter
+        </button>
+      </form>
+    </section>
+    <section>
+      <h2 class="text-lg font-semibold mb-4">Liste des articles</h2>
+      <div id="articlesList" class="grid gap-4"></div>
+    </section>
+  </main>
+
+  <script>
+    const apiUrl = "http://localhost:3000";
+
+    const articleForm = document.getElementById("articleForm");
+    articleForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const title = document.getElementById("title").value;
+      const content = document.getElementById("content").value;
+      const author = document.getElementById("author").value;
+
+      try {
+        const response = await fetch(`${apiUrl}/add-article`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, content, author })
+        });
+        const result = await response.json();
+        alert("Article ajouté avec succès !");
+        articleForm.reset();
+        fetchArticles();
+      } catch (error) {
+        console.error("Erreur lors de l'ajout de l'article :", error);
+      }
+    });
+
+    async function fetchArticles() {
+      try {
+        const response = await fetch(`${apiUrl}/articles`);
+        const articles = await response.json();
+
+        const articlesList = document.getElementById("articlesList");
+        articlesList.innerHTML = ""; // Effacer les articles existants
+
+        articles.forEach((article) => {
+          const articleDiv = document.createElement("div");
+          articleDiv.className = "p-4 bg-white shadow rounded-md";
+          articleDiv.innerHTML = `
+            <h3 class="font-bold text-lg">${article.title}</h3>
+            <p>${article.content}</p>
+            <p class="text-sm text-gray-500">Auteur : ${article.author}</p>
+            <button class="mt-2 bg-red-500 hover:bg-red-600 text-white font-semibold px-2 py-1 rounded-md"
+              onclick="deleteArticle('${article._id}')">Supprimer</button>
+          `;
+          articlesList.appendChild(articleDiv);
+        });
+      } catch (error) {
+        console.error("Erreur lors de la récupération des articles :", error);
+      }
+    }
+
+    async function deleteArticle(articleId) {
+      try {
+        const response = await fetch(`${apiUrl}/delete-article/${articleId}`, {
+          method: "DELETE",
+        });
+        const result = await response.json();
+        alert("Article supprimé !");
+        fetchArticles();
+      } catch (error) {
+        console.error("Erreur lors de la suppression de l'article :", error);
+      }
+    }
+    window.onload = fetchArticles;
+  </script>
+</body>
+</html>
