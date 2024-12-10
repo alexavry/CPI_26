@@ -19,7 +19,7 @@ mongoose.connection.on('error', () => {
 // Se connecter sur mongodb (async)
 // Ca prend x temps à s'executer
 //todo : adapter a la bone bdd
-mongoose.connect("mongodb://localhost:27017/tp_cpi");
+mongoose.connect("mongodb://127.0.0.1:27017/tp_cpi");
 
 //todo creer le modele article 
 const Article = mongoose.model('Article', { id: Number, title: String, content: String, author: String }, 'articles');
@@ -58,14 +58,14 @@ app.get('/article/:id', async (request, response) => {
     }
 
     return response.json(foundArticle);
-
+    
 });
 //route pour ajouter un article
 app.post('/add-article', async (request, response) =>{
     const articleJson = request.body;
-    const product = new Article(productJson);
-    await product.save();
-    return response.json(product);
+    const article = new Article(articleJson);
+    await article.save();
+    return response.json(article);
 
 });
 
