@@ -3,6 +3,8 @@ const express = require('express');
 // Importer le module mongoose
 const mongoose = require('mongoose');
 
+const cors = require('cors');
+
 // ================================================
 // Connexion à la base de données
 // ================================================
@@ -29,6 +31,7 @@ const Article = mongoose.model('Article', { title: String, content: String, auth
 // ================================================
 // Instancier le server grace à express
 const app = express();
+app.use(cors());
 
 // AUTORISER LE BACK A RECEVOIR DES DONNEES DANS LE BODY
 app.use(express.json());
