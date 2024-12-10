@@ -36,6 +36,8 @@ app.use(express.json());
 // ================================================
 // Les routes (url/point d'entrée)
 // ================================================
+
+//route pour le get de tous les articles
 app.get('/articles', async (request, response) => {
     const articles = await Article.find();
 
@@ -45,7 +47,45 @@ app.get('/articles', async (request, response) => {
 
     return response.json(articles); 
 });
+//route pour le get de un article precis
+app.get('/article/:id', async (request, response) => {
+    const paramID = request.params.id;
 
+    const foundArticle = await Article.findOne({'id' : paramID});
+
+    if (!foundArticle){
+        return response.json({ code : "705" });
+    }
+
+    return response.json(foundArticle);
+
+});
+//route pour ajouter un article
+app.post('/add-article', async (request, response) =>{
+    const articleJson = request.body;
+    const product = new Article(productJson);
+    await product.save();
+    return response.json(product);
+
+});
+
+// Route pour supprimer un article précis
+app.delete('/delete-article/:id', async (request, response) => {
+    const paramID = request.params.id;
+
+    try {
+        const result = await Article.deleteOne({ id: paramID });
+
+        if (result.deletedCount === 0) {
+            return response.json({ code: "706", message: "Article non trouvé" });
+        }
+
+        return response.json({ code: "200", message: "Article supprimé avec succès" });
+    } catch (error) {
+        console.error("Erreur lors de la suppression de l'article :", error);
+        return response.status(500).json({ code: "500", message: "Erreur serveur" });
+    }
+});
 // ================================================
 // Lancer le serveur
 // ================================================
